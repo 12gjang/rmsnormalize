@@ -20,28 +20,36 @@ rms=`sox "$filename" -n stats 2>&1 | \
   awk '{print $4}'`
 
 threshold=`echo $target_rms $rms | \
-  awk '{printf "%f",  - ($1 - $2)}' | \
-  xxd -p`
+  awk '{printf "%f",  - ($1 - $2)}'`
 
-hexdump -ve '1/1 "%.2X"' L3.fxb.template | \
-  sed "s/5E/$threshold/g" | \
-  xxd -r -p > $filename.fxb
+echo INFILE_RMS:  $rms
+echo TARGET_RMS:  $target_rms
+echo THRESHOLD:   $threshold
+
+python build_fxp.py $threshold $filename.fxp
 
 sox $filename \
   --bits $precision \
   --rate $sample_rate \
   --encoding signed-integer \
   --endian little \
+  --channels 2 \
   $prefix.raw
 
 mrswatson64 \
   --input $prefix.raw \
   --output $prefix.norm.raw \
-  --plugin "WaveShell-VST 9.6:L3GS,$filename.fxb"
+  --plugin "WaveShell-VST 9.6:L3GS,$filename.fxp"
 
 sox \
   --bits $precision \
   --rate $sample_rate \
   --encoding signed-integer \
   --endian little \
+  --channels 2 \
   $prefix.norm.raw $prefix.norm.$ext
+
+rm $filename.fxp
+rm $prefix.raw
+rm $prefix.norm.raw
+
