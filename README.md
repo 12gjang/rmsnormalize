@@ -19,10 +19,6 @@ $ rmsnormalize.sh \<INPUT_FILENAME> \<TARGET_RMS>
 
 $ rmsnormalize.sh heat_seeker.wav -6.0
 
-## Todo
-
-Make project single-file python script.
-
 ## Notes
 
 Kudos to @alexras for his vst2preset.py script.
